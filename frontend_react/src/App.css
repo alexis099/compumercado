@@ -101,6 +101,12 @@ li {
   text-align: center;
 }
 
+.algo-ha-salido-mal {
+  padding-top: 2em;
+  font-size: 4rem;
+  text-align: center;
+}
+
 .validacion-error {
   color: var(--color-principal);
 }

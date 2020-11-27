@@ -14,6 +14,10 @@ import javax.sql.DataSource;
 @Configuration
 @ComponentScan(basePackages = "com.alexis.compumercado")
 public class SpringMVCConfig implements WebMvcConfigurer {
+    private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {
+            "classpath:/META-INF/resources/", "classpath:/resources/",
+            "classpath:/static/", "classpath:/public/" };
+
     @Bean
     public DataSource dataSource() {
         String bd = "compumercado";
@@ -40,6 +44,7 @@ public class SpringMVCConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
         registry.addResourceHandler("/archivos/**").addResourceLocations("/archivos/");
         registry.addResourceHandler("/usuarios/**").addResourceLocations("/usuarios/");
     }

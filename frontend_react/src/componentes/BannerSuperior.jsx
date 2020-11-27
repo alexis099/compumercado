@@ -20,7 +20,6 @@ import { useEffect } from "react";
 
 const BannerNormal = (props) => {
     let primerasCuatro = categorias;
-    let demas = [];
     const [redirigir, setRedirigir] = useState(false);
     const [urlBusqueda, setUrlBusqueda] = useState(false);
 
@@ -50,7 +49,7 @@ const BannerNormal = (props) => {
                     placeholder="Buscar componentes, accesorios, consolas..."
                     onKeyDown={e => buscarInput(e)} />
                 <section className="banner__accesos">
-                    <a className="banner__acceso a-limpio" href="/vender">VENDER</a>
+                    {usr && <a className="banner__acceso a-limpio" href="/vender">VENDER</a>}
                     <a className="banner__acceso a-limpio" href="/soporte">SOPORTE</a>
                     <span className="seccion-cuenta">
                         {usr

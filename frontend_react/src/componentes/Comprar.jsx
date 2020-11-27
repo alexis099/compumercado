@@ -8,7 +8,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 /* datos del programa */
-import { baseURL, verArticuloURL, deshex, arrayBase64 } from "../datos";
+import { baseURL, verArticuloURL, Redirigir, deshex, arrayBase64 } from "../datos";
 
 import { Star, StarFill } from 'react-bootstrap-icons';
 
@@ -122,8 +122,8 @@ const Comprar = (props) => {
     return(
         <>
         {publicacion === null && !error && <div className="div-cargando"/> }
-        {error && <div>Error conectando al servidor.</div> }
-        {publicacion !== null && minsel != -1 &&
+        {error && <Redirigir donde="/error" /> }
+        {!error && publicacion !== null && minsel != -1 &&
 		<div className="comprar-articulo-view border-box">
             <div className="marco box-shadow-1">
                 <div className="detalles-compra border-box">

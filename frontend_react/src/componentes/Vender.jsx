@@ -5,7 +5,7 @@ import './Vender.css';
 import axios from "axios";
 
 /* datos */
-import { categorias, baseURL, publicarURL, verArticuloURL, hex, deshex, arrayBase64, base64Archivo } from "../datos";
+import { categorias, baseURL, publicarURL, verArticuloURL, hex, deshex, arrayBase64, base64Archivo, Redirigir } from "../datos";
 
 /* react-router-dom */
 import { useParams } from "react-router-dom";
@@ -13,158 +13,11 @@ import { useParams } from "react-router-dom";
 import { Camera } from "react-bootstrap-icons";
 
 /* material ui */
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Switch from '@material-ui/core/Switch';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Paper from '@material-ui/core/Paper';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import StepConnector from '@material-ui/core/StepConnector';
 
 import { 
-    Shop,
-    Grid,
-    Pencil,
-    Tag,
-    Images,
     XCircle } from "react-bootstrap-icons";
 import { useRef } from 'react';
-
-/*
-const ColorlibConnector = withStyles({
-    alternativeLabel: {
-        top: 22,
-    },
-    active: {
-        '& $line': {
-        backgroundImage:
-            'linear-gradient(to right, rgb(15, 12, 41), rgb(48, 43, 99), rgb(36, 36, 62))',
-        backgroundColor:
-            '#071a52'
-        },
-    },
-    completed: {
-        '& $line': {
-        backgroundImage:
-            'linear-gradient(to right, rgb(15, 12, 41), rgb(48, 43, 99), rgb(36, 36, 62))',
-            backgroundColor:
-                '#071a52'
-        },
-    },
-    line: {
-        height: 3,
-        border: 0,
-        backgroundColor: '#eaeaf0',
-        borderRadius: 1,
-    },
-    })(StepConnector);
-
-const useColorlibStepIconStyles = makeStyles({
-    root: {
-        backgroundColor: '#ccc',
-        zIndex: 1,
-        color: '#fff',
-        width: 50,
-        height: 50,
-        display: 'flex',
-        borderRadius: '50%',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    active: {
-        backgroundColor:
-            '#303F9F',
-        boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
-    },
-    completed: {
-        // backgroundImage:
-        // 'linear-gradient(to right, rgb(15, 12, 41), rgb(48, 43, 99), rgb(36, 36, 62))',
-        backgroundColor:
-            '#303F9F'
-    },
-    });
-
-function ColorlibStepIcon(props) {
-    const classes = useColorlibStepIconStyles();
-    const { active, completed } = props;
-    
-    const icons = {
-        1: <Grid />,
-        2: <Pencil />,
-        3: <Tag />,
-        4: <Images />,
-        5: <Shop />,
-    };
-    
-    return (
-        <div
-        className={clsx(classes.root, {
-            [classes.active]: active,
-            [classes.completed]: completed,
-        })}
-        >
-        {icons[String(props.icon)]}
-        </div>
-    );
-}
-
-const IOSSwitch = withStyles((theme) => ({
-    root: {
-        width: 42,
-        height: 26,
-        padding: 4,
-        margin: theme.spacing(1),
-    },
-    switchBase: {
-        padding: 1,
-            '&$checked': {
-                transform: 'translateX(16px)',
-                color: theme.palette.common.white,
-                '& + $track': {
-                backgroundColor: '#fc5185',
-                opacity: 1,
-                border: 'none',
-                },
-            },
-            '&$focusVisible $thumb': {
-                color: '#52d869',
-                border: '6px solid #fff',
-            },
-    },
-    thumb: {
-        width: 24,
-        height: 24,
-    },
-    track: {
-        borderRadius: 26 / 2,
-        border: `1px solid ${theme.palette.grey[400]}`,
-        backgroundColor: theme.palette.grey[50],
-        opacity: 1,
-        transition: theme.transitions.create(['background-color', 'border']),
-    },
-        checked: {},
-        focusVisible: {},
-    }))(({ classes, ...props }) => {
-    return (
-        <Switch
-            focusVisibleClassName={classes.focusVisible}
-            disableRipple
-            classes={{
-                root: classes.root,
-                switchBase: classes.switchBase,
-                thumb: classes.thumb,
-                track: classes.track,
-                checked: classes.checked,
-            }}
-            {...props}
-        />
-    );
-});
-*/
 
 /*  usado para comprobar si los campos fueron editados al menos una vez
     antes de mostrar errores en la validacion */
@@ -191,7 +44,7 @@ const Vender = (props) => {
     const [fotos, setFotos] = useState([]);
     const [uris, setUris] = useState([]);
     const [excedido, setExcedido] = useState(false);
-    const [validacion, setValidacion] = useState(false);
+    const [error, setError] = useState(false);
     /* se usa pura y exclusivamente para forzar un re-renderizado (?) */
     const [_, setErrores] = useState(false);
 
@@ -217,7 +70,7 @@ const Vender = (props) => {
 				}
 				setMostrar(true);
 			})
-			.catch(err => {});
+			.catch(setError(true));
 		}
 		else setMostrar(true);
 	}, []);
@@ -350,7 +203,7 @@ const Vender = (props) => {
     function finalizarPublicacion() {
         let usr_dataid = props.dataId;
         const imgData = new FormData();
-		if(id) {imgData.append("id", id); console.log("Ingreso: " + id);};
+		if(id) imgData.append("id", id);
         imgData.append("data_id", usr_dataid);
         imgData.append("categoria", categoria);
         imgData.append("titulo", hex(titulo));
@@ -405,8 +258,9 @@ const Vender = (props) => {
 
     return(
 		<>
-		{paso === -1 && <ConfirmacionPublicacion />}
-		{mostrar && paso !== -1 && <Paper
+        {error && <Redirigir donde="/error" /> }
+		{!error && paso === -1 && <ConfirmacionPublicacion />}
+		{!error && mostrar && paso !== -1 && <Paper
             className="vender-articulo-view"
             elevation={3}>
             <div className="titulos-etapas">
@@ -580,13 +434,6 @@ const Vender = (props) => {
                     Anterior
                 </button>
                 <div className="publicacion-steeper">
-				{/*<Stepper alternativeLabel activeStep={paso} connector={<ColorlibConnector />}>
-                    {pasos.map((label) => (
-                        <Step key={label}>
-                            <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
-                        </Step>
-                    ))}
-                </Stepper>*/}
                 </div>
                 <button
                     className="n-boton"
@@ -594,12 +441,6 @@ const Vender = (props) => {
                     onClick={e => mover(1)} >
                     {paso === 4 ? "Finalizar" : "Siguiente"}
                 </button>
-				{/*<Button
-                    variant="contained" 
-                    color="primary"
-                    onClick={e => finalizarPublicacion()} >
-                    Enviar foto
-                </Button>*/}
             </div>
             
         </Paper>}

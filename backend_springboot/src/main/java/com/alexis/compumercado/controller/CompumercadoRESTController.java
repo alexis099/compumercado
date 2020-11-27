@@ -29,9 +29,11 @@ import java.sql.Date;
 import java.util.*;
 
 @RestController
-@RequestMapping("compumercado/data")
-@CrossOrigin(origins = {"http://localhost:3000"})
-public class RoutingController implements ServletContextAware {
+@RequestMapping("") // quitar comentario!
+// @RequestMapping("") // borrar!
+// @CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:5500"})
+@CrossOrigin // comentar al finalizar
+public class CompumercadoRESTController implements ServletContextAware {
     public static String carpetaImagenes = System.getProperty("user.dir") + "/imagenestmp/";
     private ServletContext servletContext;
     private final String key = "OKmiszOYGPk098haoeXrPEylfmHllukv";
@@ -64,16 +66,6 @@ public class RoutingController implements ServletContextAware {
     @Autowired
     private TieneImagenService tieneImagenService;
 
-    @RequestMapping(value = "/pruebaAES", method = RequestMethod.POST)
-    public String pruebaAES(@RequestParam(value = "palabra") String palabra) {
-        String salida = "Palabra: " + palabra;
-        String encr = encriptar(palabra);
-        salida += "\nEncriptado: " + encr;
-        String desencr = desencriptar(encr);
-        salida += "\nDesencriptado: " + desencr;
-        return salida;
-    }
-
     /* iniciar sesion */
     @RequestMapping(value = "/ingresar", method = RequestMethod.POST)
     public ResponseEntity<?> iniciarSesion(@RequestParam(value = "email") String email,
@@ -97,7 +89,7 @@ public class RoutingController implements ServletContextAware {
     }
 
     /* verificar usuario */
-    @RequestMapping(value = "/verificar-usuario", method = RequestMethod.POST)
+    @RequestMapping(value = "/verificar-usuario", method = RequestMethod.GET)
     public ResponseEntity<String> verificarUsuario(@RequestParam("dataid") String dataid) {
         List usuarios = entityManager.createQuery("SELECT c FROM CuentaUsuario c WHERE c.dataId = :id")
                 .setParameter("id", Long.parseLong(dataid))
@@ -163,7 +155,7 @@ public class RoutingController implements ServletContextAware {
                     .setParameter("id", Long.parseLong(id))
                     .getResultList();
             if(publicaciones.isEmpty()) {
-                return new ResponseEntity<>("11", HttpStatus.OK);
+                return new ResponseEntity<>("11", HttpStatus.NOT_FOUND);
             }
             Publicacion publicacion = (Publicacion) publicaciones.get(0);
             publicacion.getArticuloId().setCategoria(categoria);
@@ -219,7 +211,7 @@ public class RoutingController implements ServletContextAware {
         List usuario = entityManager.createQuery("SELECT c FROM CuentaUsuario c WHERE c.dataId = :dataid")
                 .setParameter("dataid", Long.parseLong(data_id))
                 .getResultList();
-        if(usuario.isEmpty()) return new ResponseEntity<>("12", HttpStatus.OK);
+        if(usuario.isEmpty()) return new ResponseEntity<>("12", HttpStatus.NOT_FOUND);
 
         CuentaUsuario autor = (CuentaUsuario) usuario.get(0);
 
@@ -313,7 +305,7 @@ public class RoutingController implements ServletContextAware {
                                               @RequestParam("password") String password) {
         String sql = "SELECT c FROM CuentaUsuario c WHERE c.email=:email";
         List lista = entityManager.createQuery(sql).setParameter("email", email).getResultList();
-        if(!lista.isEmpty()) return new ResponseEntity<>("1", HttpStatus.OK);
+        if(!lista.isEmpty()) return new ResponseEntity<>("1", HttpStatus.NOT_FOUND);
 
         sql = "SELECT d FROM DataId d";
         lista = entityManager.createQuery(sql).getResultList();
@@ -359,7 +351,7 @@ public class RoutingController implements ServletContextAware {
         List publicaciones = entityManager.createQuery(sql).setParameter("id", Long.parseLong(id)).getResultList();
 
         if(publicaciones.isEmpty())
-            return new ResponseEntity<>("", HttpStatus.OK);
+            return new ResponseEntity<>("-1", HttpStatus.NOT_FOUND);
 
         Publicacion publicacion = (Publicacion) publicaciones.get(0);
 	    return new ResponseEntity<>(generarJSON(publicacion), HttpStatus.OK);
@@ -378,11 +370,11 @@ public class RoutingController implements ServletContextAware {
         for(String id : idpublicacion) {
             String sql = "SELECT c FROM CuentaUsuario c WHERE c.dataId=:id";
             List usuarios = entityManager.createQuery(sql).setParameter("id", Long.parseLong(idUsuario)).getResultList();
-            if (usuarios.isEmpty()) return new ResponseEntity<>("1", HttpStatus.OK); //
+            if (usuarios.isEmpty()) return new ResponseEntity<>("1", HttpStatus.NOT_FOUND); //
 
             sql = "SELECT p FROM Publicacion p WHERE p.idPublicacion=:id";
             List publicaciones = entityManager.createQuery(sql).setParameter("id", Long.parseLong(id)).getResultList();
-            if (publicaciones.isEmpty()) return new ResponseEntity<>("2", HttpStatus.OK);
+            if (publicaciones.isEmpty()) return new ResponseEntity<>("2", HttpStatus.NOT_FOUND);
 
             CuentaUsuario comprador = (CuentaUsuario) usuarios.get(0);
             Publicacion publicacion = (Publicacion) publicaciones.get(0);
@@ -440,9 +432,9 @@ public class RoutingController implements ServletContextAware {
                 resultado = carpeta.delete();
             }
 
-            return new ResponseEntity<>(resultado ? "0" : "2", HttpStatus.OK);
+            return new ResponseEntity<>(resultado ? "0" : "2", resultado ? HttpStatus.OK : HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("11", HttpStatus.OK);
+        return new ResponseEntity<>("11", HttpStatus.NOT_FOUND);
     }
 
     /* agregar al carrito */
@@ -452,13 +444,13 @@ public class RoutingController implements ServletContextAware {
         List usuarios = entityManager.createQuery("SELECT c FROM CuentaUsuario c WHERE c.dataId=:dataid")
                 .setParameter("dataid", Long.parseLong(dataId))
                 .getResultList();
-        if(usuarios.isEmpty()) return new ResponseEntity<>("1", HttpStatus.OK);
+        if(usuarios.isEmpty()) return new ResponseEntity<>("1", HttpStatus.NOT_FOUND);
         CuentaUsuario usuario = (CuentaUsuario) usuarios.get(0);
 
         List publicaciones = entityManager.createQuery("SELECT p FROM Publicacion p WHERE p.idPublicacion=:id")
                 .setParameter("id", Long.parseLong(idp))
                 .getResultList();
-        if(publicaciones.isEmpty()) return new ResponseEntity<>("2", HttpStatus.OK);
+        if(publicaciones.isEmpty()) return new ResponseEntity<>("2", HttpStatus.NOT_FOUND);
         Publicacion publicacion = (Publicacion) publicaciones.get(0);
 
         Carrito carrito = new Carrito();
@@ -609,7 +601,7 @@ public class RoutingController implements ServletContextAware {
                 .setParameter("id", Long.parseLong(dataIdUsuario))
                 .getResultList();
         if(usuarios.isEmpty()) {
-            return new ResponseEntity<>("-1", HttpStatus.OK);
+            return new ResponseEntity<>("-1", HttpStatus.NOT_FOUND);
         }
         CuentaUsuario usuario = (CuentaUsuario) usuarios.get(0);
 
