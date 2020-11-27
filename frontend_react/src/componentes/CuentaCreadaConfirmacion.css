@@ -1,0 +1,27 @@
+.cuenta-creada-confirmacion-view {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    margin: 3.5em auto;
+}
+
+.form-cuenta-creada-confirmacion {
+    padding: 20px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-cuenta-creada-confirmacion__titulo {
+    margin: 1.4em 0 .42em 0;
+    align-self: center;
+}
+
+.form-cuenta-creada-confirmacion__msj {
+    margin: 1.3em 0 2em 1.36em;
+}
+
+.form-cuenta-creada-confirmacion__btn {
+	width: 200px;
+    align-self: center;
+}

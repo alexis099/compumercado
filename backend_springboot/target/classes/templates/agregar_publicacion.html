@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar publicación</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+</head>
+<body>
+    <form action="#" th:action="@{/extapi/agregar_publicacion}" th:object="${publicacion}" method="post">
+        <div class="mb-3">
+            <label for="idPublicacion" class="form-label">Id</label>
+            <input type="text" class="form-control" th:field="*{idPublicacion}" name="idPublicacion" id="idPublicacion">
+        </div>
+        <div class="mb-3">
+            <label for="idArticulo" class="form-label">Id Articulo</label>
+            <input type="text" class="form-control" th:field="*{articuloId.idArticulo}" name="idArticulo" id="idArticulo">
+        </div>
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" th:field="*{articuloId.titulo}" name="titulo" id="titulo">
+        </div>
+        <div class="mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <input type="text" class="form-control" th:field="*{articuloId.descripcion}" name="descripcion" id="descripcion">
+        </div>
+        <div class="mb-3">
+            <label for="cantidad" class="form-label">Cantidad</label>
+            <input type="number" class="form-control" th:field="*{cantidad}" name="cantidad" id="cantidad">
+        </div>
+        <div class="mb-3">
+            <label for="precio" class="form-label">Precio</label>
+            <input type="number" class="form-control" th:field="*{precio}" name="precio" id="precio">
+        </div>
+        <br>
+        <br>
+        <div class="mb-3">
+            <label for="idAutor" class="form-label">Id autor</label>
+            <input type="number" class="form-control" th:field="*{cantidad}" name="idAutor" id="idAutor">
+        </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Publicar</button>
+    </form>
+</body>
+</html>

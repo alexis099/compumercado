@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar cuenta</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+</head>
+<body>
+<form action="#" th:action="@{/extapi/agregar_cuenta}" th:object="${cuenta}" method="post">
+    <label for="idCuentaUsuario">Id jugador:</label>
+    <input type="text" id="idCuentaUsuario" th:field="*{idCuentaUsuario}" name="idCuentaUsuario">
+
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" th:field="*{nombre}" name="nombre">
+
+    <label for="apellido">Apellido:</label>
+    <input type="text" id="apellido" th:field="*{apellido}" name="apellido">
+
+    <label for="email">Email:</label>
+    <input type="text" id="email" th:field="*{email}" name="email">
+
+    <button type="submit">Agregar</button>
+</form>
+</body>
+</html>

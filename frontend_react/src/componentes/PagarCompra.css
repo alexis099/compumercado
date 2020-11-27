@@ -1,0 +1,103 @@
+.pagar-compra-view {
+    margin: 1em;
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(400px, auto));
+}
+
+.pagar-compra__info-articulo {
+    padding: 1em;
+    align-self: flex-start;
+    text-align: center;
+}
+
+.pagar-compra__info-articulo__titulo-articulo {
+    margin: 1.1em 0 3.2em;
+    text-align: left;
+}
+
+.pagar-compra__info-articulo .img {
+    max-width: 60%;
+    text-align: center;
+}
+
+.pagar-compra__pago {
+    flex: 1 1 0px;
+    padding: 1em;
+    border-left: 1px solid #ccc;
+}
+
+.pagar-compra__pago__titulo {
+    margin: 1.1em 0;
+}
+
+.pagar-compra__pago__precio-total {
+    padding: 1em 0;
+}
+
+.pagar-compra__pago__precio-total .precio-total {
+    font-size: 3rem;
+}
+
+.bot-finalizar-compra {
+    width: 200px;
+}
+
+@media screen and (max-width: 1366px) {
+    .pagar-compra__pago {
+        border: none;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .pagar-compra-view {
+        display: block;
+        width: 100%;
+        margin: 0;
+        padding: 1em;
+    }
+
+    .pagar-compra__info-articulo {
+        width: 100%;
+        text-align: center;
+    }
+
+    .pagar-compra__info-articulo,
+    .pagar-compra__pago {
+        padding: 0;
+        border: none;
+    }
+
+    .pagar-compra__pago .campo {
+        margin: 1em;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .pagar-compra__info-articulo {
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .pagar-compra-view {
+        width: 100%;
+        margin: 0;
+        padding: 1em;
+    }
+
+    .pagar-compra__info-articulo,
+    .pagar-compra__pago {
+        padding: 0;
+        border: none;
+    }
+
+    .pagar-compra__pago .campo {
+        margin: 0;
+    }
+
+    .pagar-compra__pago__precio-total .precio-total {
+        font-size: 2rem;
+        font-weight: 600;
+    }
+}

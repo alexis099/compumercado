@@ -1,0 +1,32 @@
+.form-crear-cuenta {
+    position: relative;
+    width: 600px;
+    margin: 5.4em auto 0;
+    padding: 3.14em;
+    padding-top: 2em;
+    background-color: #fff;
+}
+
+.form-crear-cuenta__campo-1 {
+    margin-right: 10px;
+}
+
+.form-crear-cuenta__campo-2 {
+    margin-left: 10px;
+}
+
+.inicio-sesion__submit {
+    width: 140px !important;
+}
+
+@media screen and (max-width: 700px) {
+    .form-crear-cuenta {
+        width: 100%;
+    }
+
+    .form-crear-cuenta__campo-1,
+    .form-crear-cuenta__campo-2 {
+        margin-right: 0;
+        margin-left: 0;
+    }
+}
