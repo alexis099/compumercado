@@ -18,7 +18,6 @@ frontend_react/coverage
 # production
 frontend_react/build
 
-backend_springboot/src/main/resources/static/*
 
 # misc
 .DS_Store

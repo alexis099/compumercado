@@ -49,7 +49,7 @@ const BannerNormal = (props) => {
                     placeholder="Buscar componentes, accesorios, consolas..."
                     onKeyDown={e => buscarInput(e)} />
                 <section className="banner__accesos">
-                    {usr && <a className="banner__acceso a-limpio" href="/vender">VENDER</a>}
+                    <a className="banner__acceso a-limpio" href="/vender">VENDER</a>
                     <a className="banner__acceso a-limpio" href="/soporte">SOPORTE</a>
                     <span className="seccion-cuenta">
                         {usr

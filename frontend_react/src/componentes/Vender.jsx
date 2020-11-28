@@ -70,7 +70,10 @@ const Vender = (props) => {
 				}
 				setMostrar(true);
 			})
-			.catch(setError(true));
+			.catch(err => {
+                console.log(err);
+                setError(true)
+            });
 		}
 		else setMostrar(true);
 	}, []);

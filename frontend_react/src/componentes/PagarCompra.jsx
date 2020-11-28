@@ -26,6 +26,7 @@ export const FormularioPago = (props) => {
     let precioTotal = props.precioTotal;
     let usr_id = props.usr_id;
     let idp = props.idp;
+    let cants = props.cants;
     const funcionExito = props.exito;
 
     function finalizarCompra() {
@@ -36,6 +37,8 @@ export const FormularioPago = (props) => {
         formData.append("idusuario", usr_id);
         for(let k=0;k<idp.length;k++)
             formData.append("id", idp[k]);
+        for(let k=0;k<cants.length;k++)
+            formData.append("cantidades", cants[k]);
         axios.post(url, formData)
         .then(res => {
             funcionExito(true);
@@ -112,24 +115,14 @@ export const FormularioPago = (props) => {
             </div>
             <br/>
             <div className="pagar-compra__pago__cantidad-retiro dflex width100">
-                <div className="pagar-compra__pago__cantidad campo1 width100">
-                    <label className="form__label dblock roboto">Cantidad</label>
-                    <select className="n-select">
-                        <option className="opt">1</option>
-                        <option className="opt">2</option>
-                        <option className="opt">3</option>
-                        <option className="opt">4</option>
-                        <option className="opt">5</option>
-                    </select>
-                </div>
-                <div className="pagar-compra__pago__retiro campo2 width100">
+                <div className="pagar-compra__pago__retiro campo1 width100">
                     <label className="form__label dblock roboto">Retiro</label>
-                    {/* <Lista className=" width100" elementos={["Envio a domicilio", "Retiro en el local"]} /> */}
                     <select className="n-select">
                         <option className="opt">Envio a domicilio</option>
                         <option className="opt">Retiro en el local</option>
                     </select>
                 </div>
+                <div className="pagar-compra__pago__cantidad campo1 width100"></div>
             </div>
             <div className="pagar-compra__pago__precio-total width100 campo1">
                 <table style={{tableLayout: "fixed", width: "100%"}}>

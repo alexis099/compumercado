@@ -23,6 +23,9 @@ public class Carrito {
     @ManyToOne
     Publicacion publicacionId;
 
+    @Column(name = "cantidad")
+    Integer cantidad;
+
     public Carrito() {
         fechaAgregado = new Date(System.currentTimeMillis());
     }
@@ -49,6 +52,18 @@ public class Carrito {
 
     public void setPublicacionId(Publicacion publicacionIdId) {
         this.publicacionId = publicacionIdId;
+    }
+
+    public Publicacion getPublicacionId() {
+        return publicacionId;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 
     public Double getPrecio() {

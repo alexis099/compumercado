@@ -28,6 +28,7 @@ const publicarURL = "/publicar";
 const verArticuloURL = "/ver-articulo";
 const pagarArticuloURL = "/realizar-compra";
 const agregarCarritoURL = "/agregar-carrito";
+const borrarDelCarritoURL = "/borrar-item-carrito";
 const verComprasURL = "/compras";
 const verCarritoURL = "/carrito";
 const verVentasURL = "/ventas";
@@ -102,6 +103,7 @@ const Redirigir = (props) => {
             inicioURL,
             verArticuloURL,
             agregarCarritoURL,
+            borrarDelCarritoURL,
             pagarArticuloURL,
             verComprasURL,
             verVentasURL,

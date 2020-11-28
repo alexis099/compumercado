@@ -29,8 +29,8 @@ import java.sql.Date;
 import java.util.*;
 
 @RestController
-@RequestMapping("") // quitar comentario!
-// @RequestMapping("") // borrar!
+@RequestMapping("")
+// @RequestMapping("")
 // @CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:5500"})
 @CrossOrigin // comentar al finalizar
 public class CompumercadoRESTController implements ServletContextAware {
@@ -155,7 +155,7 @@ public class CompumercadoRESTController implements ServletContextAware {
                     .setParameter("id", Long.parseLong(id))
                     .getResultList();
             if(publicaciones.isEmpty()) {
-                return new ResponseEntity<>("11", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("11", HttpStatus.OK);
             }
             Publicacion publicacion = (Publicacion) publicaciones.get(0);
             publicacion.getArticuloId().setCategoria(categoria);
@@ -345,16 +345,26 @@ public class CompumercadoRESTController implements ServletContextAware {
     }
 
     /* ver artículo */
-    @RequestMapping(value = "/ver-articulo/{id}", method = RequestMethod.GET)
-    public ResponseEntity<String> verArticulo(@PathVariable String id) {
+    @RequestMapping(value = "/ver-articulo", method = RequestMethod.GET)
+    public ResponseEntity<String> verArticulo(@RequestParam("idpublicacion") String idpublicacion,
+                                              @RequestParam(value = "dataidusuario", required = false) String dataIdusuario) {
         String sql = "SELECT p FROM Publicacion p WHERE p.idPublicacion=:id";
-        List publicaciones = entityManager.createQuery(sql).setParameter("id", Long.parseLong(id)).getResultList();
+        List publicaciones = entityManager.createQuery(sql).setParameter("id", Long.parseLong(idpublicacion)).getResultList();
 
         if(publicaciones.isEmpty())
             return new ResponseEntity<>("-1", HttpStatus.NOT_FOUND);
 
+        boolean usuarioTieneArticuloEnSuCarrito = false;
+        if(dataIdusuario != null) {
+            List carritos = entityManager.createQuery("SELECT c FROM Carrito c WHERE c.cuentaId.dataId=:dataid AND c.publicacionId.idPublicacion=:idpublicacion")
+                    .setParameter("dataid", Long.parseLong(dataIdusuario))
+                    .setParameter("idpublicacion", Long.parseLong(idpublicacion))
+                    .getResultList();
+            usuarioTieneArticuloEnSuCarrito = carritos.isEmpty();
+        }
+
         Publicacion publicacion = (Publicacion) publicaciones.get(0);
-	    return new ResponseEntity<>(generarJSON(publicacion), HttpStatus.OK);
+	    return new ResponseEntity<>(generarJSON(publicacion, usuarioTieneArticuloEnSuCarrito), HttpStatus.OK);
     }
 
     /*
@@ -366,8 +376,10 @@ public class CompumercadoRESTController implements ServletContextAware {
      */
     @RequestMapping(value = "/realizar-compra", method = RequestMethod.POST)
     public ResponseEntity<String> realizarCompra(@RequestParam("idusuario") String idUsuario,
-                                                 @RequestParam("id") String[] idpublicacion) {
-        for(String id : idpublicacion) {
+                                                 @RequestParam("id") String[] idpublicacion,
+                                                 @RequestParam("cantidades") String[] cantidades) {
+        for(int i = 0; i < idpublicacion.length; i++) {
+            String id = idpublicacion[i];
             String sql = "SELECT c FROM CuentaUsuario c WHERE c.dataId=:id";
             List usuarios = entityManager.createQuery(sql).setParameter("id", Long.parseLong(idUsuario)).getResultList();
             if (usuarios.isEmpty()) return new ResponseEntity<>("1", HttpStatus.NOT_FOUND); //
@@ -387,7 +399,7 @@ public class CompumercadoRESTController implements ServletContextAware {
             compra.setVendedorId(publicacion.getAutorId());
             compra.setArticuloId(articulo);
             compra.setPrecio(publicacion.getPrecio());
-            compra.setCantidad(1);
+            compra.setCantidad(Integer.parseInt(cantidades[i]));
             compra.setFechaCompra(new Date(System.currentTimeMillis()));
             compraService.agregar(compra);
 
@@ -399,7 +411,7 @@ public class CompumercadoRESTController implements ServletContextAware {
                 Carrito carrito = (Carrito) o;
                 carritoService.borrar(carrito.getIdCarrito());
             }
-            publicacion.setCantidad(publicacion.getCantidad() - 1);
+            publicacion.setCantidad(publicacion.getCantidad() - Integer.parseInt(cantidades[i]));
             publicacionService.agregar(publicacion);
         }
         return new ResponseEntity<>("0", HttpStatus.OK);
@@ -456,9 +468,25 @@ public class CompumercadoRESTController implements ServletContextAware {
         Carrito carrito = new Carrito();
         carrito.setCuentaId(usuario);
         carrito.setPublicacionId(publicacion);
+        carrito.setCantidad(1);
         carrito.setFechaAgregado(new Date(System.currentTimeMillis()));
         carritoService.agregar(carrito); 
 
+        return new ResponseEntity<>("0", HttpStatus.OK);
+    }
+
+    /* borrar item del carrito */
+    @RequestMapping(value = "/borrar-item-carrito", method = RequestMethod.POST)
+    public ResponseEntity<String> borrarItemCarrito(@RequestParam("idpublicacion") String idpublicacion,
+                                                    @RequestParam("dataidusuario") String dataIdusuario) {
+        List carritos = entityManager.createQuery("SELECT c FROM Carrito c WHERE c.cuentaId.dataId=:dataid AND c.publicacionId.idPublicacion=:idpublicacion")
+                .setParameter("dataid", Long.parseLong(dataIdusuario))
+                .setParameter("idpublicacion", Long.parseLong(idpublicacion))
+                .getResultList();
+        for(Object o : carritos){
+            Carrito carrito = (Carrito) o;
+            carritoService.borrar(carrito.getIdCarrito());
+        }
         return new ResponseEntity<>("0", HttpStatus.OK);
     }
 
@@ -610,7 +638,8 @@ public class CompumercadoRESTController implements ServletContextAware {
                 .getResultList();
 
         Double total = 0.0;
-        StringBuilder sb = new StringBuilder("{\"items\":[");
+        // StringBuilder sb = new StringBuilder("{\"items\":[");
+        StringBuilder sb = new StringBuilder("[");
         for(Object o : carritos) {
             Carrito carrito = (Carrito) o;
             Publicacion publicacion = carrito.getPublicacionIdId();
@@ -628,20 +657,22 @@ public class CompumercadoRESTController implements ServletContextAware {
             sb.append("\"descripcion\":\"").append(publicacion.getArticuloId().getDescripcion()).append("\",");
             if(bytes != null) sb.append("\"miniatura\":").append(Arrays.toString(bytes)).append(",");
             sb.append("\"precio\":\"").append(publicacion.getPrecioStr()).append("\",");
-            sb.append("\"cantidad\":\"").append(publicacion.getCantidad()).append("\",");
+            sb.append("\"cantidad\":\"").append(carrito.getCantidad()).append("\",");
+            sb.append("\"cantidadTotal\":\"").append(publicacion.getCantidad()).append("\",");
             sb.append("\"fechadia\":\"").append(carrito.getFechaAgregado().toLocalDate().getDayOfMonth()).append("\",");
             sb.append("\"fechames\":\"").append(carrito.getFechaAgregado().toLocalDate().getMonthValue()).append("\",");
             sb.append("\"fechayear\":\"").append(carrito.getFechaAgregado().toLocalDate().getYear()).append("\"");
             sb.append("},");
             total += publicacion.getPrecio();
         }
+        if(sb.toString().endsWith(",")) sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+        // String precio_str = String.valueOf(total);
+        // precio_str = precio_str.endsWith(".0") ? precio_str.substring(0, precio_str.length() - 2) : precio_str;
 
-        String precio_str = String.valueOf(total);
-        precio_str = precio_str.endsWith(".0") ? precio_str.substring(0, precio_str.length() - 2) : precio_str;
 
-
-        if(sb.charAt(sb.length()-1) == ',') sb.deleteCharAt(sb.length() - 1);
-        sb.append("], \"total\": \"").append(precio_str).append("\"}");
+        // if(sb.charAt(sb.length()-1) == ',') sb.deleteCharAt(sb.length() - 1);
+        // sb.append("], \"total\": \"").append(precio_str).append("\"}");
         return new ResponseEntity<>(sb.toString(), HttpStatus.OK);
     }
 
@@ -677,6 +708,10 @@ public class CompumercadoRESTController implements ServletContextAware {
     }
 
     private String generarJSON(Publicacion publicacion) {
+        return generarJSON(publicacion, false);
+    }
+
+    private String generarJSON(Publicacion publicacion, boolean usuarioTieneArticuloEnSuCarrito) {
 	    StringBuilder sb = new StringBuilder("{");
 	
         sb.append("\"id\": \"").append(publicacion.getIdPublicacion()).append("\",");
@@ -684,6 +719,9 @@ public class CompumercadoRESTController implements ServletContextAware {
 	    sb.append("\"url\":\"").append(publicacion.getArticuloId().getUrl()).append("\",");
         sb.append("\"categoria\":\"").append(publicacion.getArticuloId().getCategoria()).append("\",");
         sb.append("\"descripcion\":\"").append(publicacion.getArticuloId().getDescripcion()).append("\",");
+
+        sb.append("\"enCarrito\":\"").append(usuarioTieneArticuloEnSuCarrito).append("\",");
+
         sb.append("\"precio\":\"").append(publicacion.getPrecioStr()).append("\",");
         sb.append("\"cantidad\":\"").append(publicacion.getCantidad()).append("\",");
 

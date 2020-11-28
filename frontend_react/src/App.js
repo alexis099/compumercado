@@ -59,9 +59,9 @@ const RoutingNormal = (props) => {
 			<BannerNormal />
       {props.tipo === 0 && <Galeria />}
       {props.tipo === 1 && (props.conectado ? <Admin pagina={props.pag} /> : <Redirigir donde="/ingresar" />)}
-      {props.tipo === 2 && <Comprar />}
+      {props.tipo === 2 && <Comprar usr={props.usrid} />}
       {props.tipo === 3 && (props.conectado ? <PagarCompra /> : <Redirigir donde="/ingresar" />)}
-      {props.tipo === 4 && (props.conectado ? <Vender dataId={props.usrid} /> : <Redirigir donde="/ingresar" />)}
+      {props.tipo === 4 && ((props.conectado) ? <Vender dataId={props.usrid.dataId} /> : <Redirigir donde="/ingresar" />)}
 		</React.Fragment>
 	)
 }
@@ -86,6 +86,7 @@ function App() {
   function verificarUsuario() {
     if(!usr) {
       Cookies.remove("usr");
+      setConectado(false);
       return;
     }
 
@@ -97,7 +98,7 @@ function App() {
 
   const dispatch = useDispatch();
   useEffect(() => {
-    verificarUsuario();
+    // verificarUsuario();
     dispatch( {type: "GUARDAR_USUARIO", payload: usr} );
   }, [usr]);
 
@@ -107,7 +108,7 @@ function App() {
 		let _dh = deshex(usuariocookie);
 		let _desenc = desencriptar(_dh);
 		usr_data = JSON.parse(_desenc);
-		setUsr(JSON.parse(_desenc)); // no comprueba la existencia del usuario en la bd
+		setUsr(JSON.parse(_desenc));
     setConectado(true); 
   }
 
@@ -127,10 +128,10 @@ function App() {
             <Route path='/admin/ventas' exact render={ _ => <RoutingNormal tipo={1} conectado={conectado} pag="1" />} />
             <Route path='/admin/publicaciones' exact render={ _ => <RoutingNormal tipo={1} conectado={conectado} pag="2" />} />
             <Route path='/admin/carrito' exact render={ _ => <RoutingNormal tipo={1} conectado={conectado} pag="3" />} />
-            <Route path='/comprar/:rnart/:nomarticulo' exact render={ _ => <RoutingNormal tipo={2} conectado={conectado} />} />
+            <Route path='/comprar/:rnart/:nomarticulo' exact render={ _ => <RoutingNormal tipo={2} conectado={conectado} usrid={usr} />} />
             <Route path='/pago/:rnart' exact render={ _ => <RoutingNormal tipo={3} conectado={conectado} />} />
-            <Route path='/vender' exact render={ _ => <RoutingNormal tipo={4} usrid={usr.dataId} conectado={conectado} />} />
-            <Route path='/editar/:idpublicacion' exact render={ _ => <RoutingNormal tipo={4} usrid={usr.dataId} conectado={conectado} usr={usr} />} />
+            <Route path='/vender' exact render={ _ => <RoutingNormal tipo={4} usrid={usr} conectado={conectado} />} />
+            <Route path='/editar/:idpublicacion' exact render={ _ => <RoutingNormal tipo={4} usrid={usr} conectado={conectado} usr={usr} />} />
             <Route path='/error' exact render={ _ => <RoutingAlgoHaSalidoMal /> } />
             <Route render={ _ => <RoutingNoEncontrado /> } />
           </Switch>

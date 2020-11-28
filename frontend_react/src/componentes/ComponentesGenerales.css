@@ -18,9 +18,10 @@
 }
 
 .n-textfield:focus,
-.n-textarea:focus {
-    border: 2px solid var(--color-principal);
-    outline: none;
+.n-textarea:focus,
+.n-select:focus {
+    outline: 2px solid var(--color-principal);
+    border: none;
 }
 
 .n-boton {
@@ -40,10 +41,6 @@
     outline: none;
 }
 
-.n-boton:active {
-    /* background-color: var(--color-secundario); */
-}
-
 .n-select {
     display: block;
     width: 100%;
@@ -52,11 +49,6 @@
     box-sizing: border-box;
     font-size: 1.04rem;
     border: 1px solid #969696;
-}
-
-.n-select:focus,
-.n-select:active {
-    outline: none;
 }
 
 .n-select .opt {

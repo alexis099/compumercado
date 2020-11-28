@@ -1,10 +1,11 @@
 package com.alexis.compumercado.controller;
 
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class PrincipalController {
+public class PrincipalController implements ErrorController {
     @RequestMapping(value = {
             "/",
             "/categorias/{categoria}",
@@ -21,7 +22,7 @@ public class PrincipalController {
             "/pago/{rnart}",
             "/vender",
             "/editar/{idpublicacion}",
-            "/error-servidor",
+            "/error",
             "/no-encontrado"
 
     })
@@ -29,4 +30,8 @@ public class PrincipalController {
         return "index";
     }
 
+    @Override
+    public String getErrorPath() {
+        return null;
+    }
 }

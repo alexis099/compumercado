@@ -33,7 +33,7 @@ const Informacion = (props) => {
 
 	let usr_tmp = useSelector(state => state.usuario);
 	if(usr_tmp && !usr) setUsr(usr_tmp);
-	
+
 	let sel = props.sel;
 	useEffect(() => {
 		if(usr) {
@@ -46,10 +46,10 @@ const Informacion = (props) => {
 			formData.append("dataid", usr.dataId);
 			axios.post(url, formData)
 			.then(res => {
-				if(sel === "0") setDatos(res.data);
-				if(sel === "1") setDatos(res.data);
-				if(sel === "2") setDatos(res.data);
-				if(sel === "3") {setDatos(res.data.items); setTotal(res.data.total)};
+				if(sel === "0") setDatos(res.data.map((item, i) => [item, 1]));
+				if(sel === "1") setDatos(res.data.map((item, i) => [item, 1]));
+				if(sel === "2") setDatos(res.data.map((item, i) => [item, 1]));
+				if(sel === "3") {setDatos(res.data.map((item, i) => [item, 1])); setTotal("0.00")};
 			});
 		}
 	}, [usr])
@@ -57,15 +57,17 @@ const Informacion = (props) => {
 	function sumar() {
 		let suma = 0;
 		datos.forEach(item => {
-			suma += Number(item.precio);
+			suma += Number(item[0].precio) * Number(item[1]);
 		});
 		return suma.toString();
 	}
 
     const Item = (props) => {
-		let dato = props.d;
+		let dato = props.d[0];
+		let indice = props.indice;
 		let sel = props.sel;
 		const [borrar, setBorrar] = useState(false);
+		const [cantidad, setCantidad] = useState(props.d[1]); // cantidad de cada item en el carrito
 		const [recargar, setRecargar] = useState(false);
 
 		useEffect(() => {if(recargar) window.location.reload(); setRecargar(false)}, [recargar]);
@@ -85,6 +87,14 @@ const Informacion = (props) => {
 			.catch(err => console.log(err));
 		}
 
+		function cantidades() {
+			let a = [];
+			for(let i = 0; i < parseInt(dato.cantidadTotal); i++ ) {
+				a.push((i + 1).toString());
+			}
+			return a;
+		}
+
         return(
 			<>
 			<li className="dblock li-item "> 
@@ -101,7 +111,20 @@ const Informacion = (props) => {
 									<a className="chip" href={"/editar/"+dato.id}>
 										Editar publicacion
 									</a>
-									<span className="chip" onClick={_ => setBorrar(true)}>Eliminar</span>
+									<span className="chip" onClick={ _ => setBorrar(true)}>Eliminar</span>
+								</>
+							}
+							{sel === "3" && 
+								<>
+									<span style={{marginRight: 10}}>Cantidad:</span>
+									<select onChange={e => {
+										setCantidad(e.target.value); 
+										let nuevosDatos = [...datos];
+										nuevosDatos[indice][1] = e.target.value;
+										setDatos(nuevosDatos);
+									}}>
+										{cantidades().map(item => <option selected={item == cantidad} >{item}</option>)}
+									</select>
 								</>
 							}
 						</div>
@@ -113,7 +136,7 @@ const Informacion = (props) => {
 						</div>
 						<div className="li-item__precio dflex justify-sb">
 							<span className={"li-item__precio roboto-c" + (borrar ? " cursor-pointer" : "")} onClick={_ => {if(borrar) eliminarPublicacion(dato.id)}}>{borrar ? "Si" : "$"}</span>
-							<span className={"li-item__precio roboto-c" + (borrar ? " cursor-pointer" : "")} onClick={_ => setBorrar(false)} >{borrar ? "No" : dato.precio}</span>
+							<span className={"li-item__precio roboto-c" + (borrar ? " cursor-pointer" : "")} onClick={_ => setBorrar(false)} >{borrar ? "No" : (dato.precio * cantidad)}</span>
 						</div>
 					</div>
 				</div>
@@ -144,14 +167,14 @@ const Informacion = (props) => {
 					{datos.length === 0 && !usr && <span className="gris-oscuro">Cargando...</span> }
 					{datos.length === 0 && usr && <span className="gris-oscuro">{sel === "3" ? "No hay items en el carrito" : "No hay " + titulos[sel].toLowerCase() + " que mostrar."}</span> }
 					{datos.map((item, i) => 
-						<Item key={i} sel={sel} d={item} />
+						<Item key={i} sel={sel} d={item} indice={i} />
 					)}
 				</div>
 
 				{/* el total a pagar por todos los items del carrito */}
 				{datos.length !== 0 && sel === "3" &&
 				<>
-					<span className="total-carrito-admin gris-oscuro">Total: $ {total}</span>
+					<span className="total-carrito-admin gris-oscuro">Total: $ {sumar()}</span>
 					<span
 						className="bot-finalizar-compra n-boton a-limpio"
 						onClick={_ => {
@@ -165,7 +188,7 @@ const Informacion = (props) => {
 			}
 			{!exito && formulario && 
 			<>
-			<FormularioPago idp={datos.map(item => item.id)} precioTotal={sumar(datos)} usr_id={usr.dataId} exito={setExito} />
+			<FormularioPago idp={datos.map(item => item[0].id)} cants={datos.map(item => item[1])} precioTotal={sumar()} usr_id={usr.dataId} exito={setExito} />
 			</>
 			}
         </>
